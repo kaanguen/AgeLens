@@ -1,30 +1,28 @@
-# Deep Learning & ML Libraries
-tensorflow>=2.11.0
-keras>=2.11.0
-numpy>=1.23.0
-scipy>=1.9.0
+# --- Core Deep Learning ---
+# TensorFlow enthält Keras bereits, eine separate Installation ist oft nicht nötig, 
+# sorgt aber für Klarheit bei den Imports.
+tensorflow>=2.15.0
+keras>=2.15.0
+numpy>=1.24.3
 
-# Image Processing
-opencv-python>=4.7.0
-pillow>=9.5.0
+# --- Image Processing ---
+# Pillow ist essenziell für dein load_data Skript
+pillow>=10.0.0
+opencv-python-headless>=4.8.0
 
-# Data Manipulation & Analysis
-pandas>=1.5.0
-scikit-learn>=1.2.0
+# --- Data Science Tools ---
+# Pandas für das Label-Handling, Scikit-Learn für den Train-Test-Split
+pandas>=2.0.0
+scikit-learn>=1.3.0
+scipy>=1.11.0
 
-# Visualization
-matplotlib>=3.7.0
-seaborn>=0.12.0
+# --- Visualization (Optional für Fehleranalyse) ---
+matplotlib>=3.8.0
+seaborn>=0.13.0
 
-# Web Interface
-streamlit>=1.28.0
-gradio>=4.0.0
+# --- Web Interface (Falls du eine Demo bauen willst) ---
+# Streamlit ist perfekt, um das Modell im Browser zu zeigen
+streamlit>=1.30.0
 
-# Utilities
-tqdm>=4.65.0
-requests>=2.31.0
-
-# Development & Jupyter
-jupyter>=1.0.0
-ipython>=8.12.0
-ipykernel>=6.22.0
+# --- Utilities ---
+tqdm>=4.66.0
