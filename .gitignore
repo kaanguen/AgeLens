@@ -25,6 +25,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+.venv
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -38,6 +39,7 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
+.DS_Store
 .tox/
 .nox/
 .coverage
@@ -153,6 +155,9 @@ venv.bak/
 
 # mkdocs documentation
 /site
+
+#Test
+/Test
 
 # mypy
 .mypy_cache/
