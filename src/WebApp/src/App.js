@@ -13,7 +13,6 @@ function App() {
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [showHistory, setShowHistory] = useState(false);
 
   // Start Camera
   const startCamera = async () => {
@@ -123,22 +122,32 @@ function App() {
     setPrediction(null);
 
     try {
+      console.log('📸 Starting prediction...');
       const response = await fetch(capturedImage);
       const blob = await response.blob();
       
       const formData = new FormData();
       formData.append('file', blob, 'image.jpg');
 
+      console.log('🔄 Sending to API...');
       const apiResponse = await axios.post('/predict', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
-        }
+        },
+        timeout: 30000
       });
 
-      setPrediction(apiResponse.data);
+      console.log('✅ API Response:', apiResponse.data);
+      
+      if (apiResponse.data.success) {
+        setPrediction(apiResponse.data);
+      } else {
+        setError('Prediction failed: ' + (apiResponse.data.detail || 'Unknown error'));
+      }
     } catch (err) {
-      setError('Prediction failed: ' + (err.response?.data?.detail || err.message));
-      console.error('Prediction error:', err);
+      console.error('❌ Prediction error:', err);
+      const errorMsg = err.response?.data?.detail || err.message || 'Prediction failed';
+      setError('Error: ' + errorMsg);
     } finally {
       setLoading(false);
     }
@@ -187,17 +196,12 @@ function App() {
         <div className="flex items-center gap-2">
           <span className="font-headline-md text-headline-md font-bold text-primary">AgeLens</span>
         </div>
-        <div className="flex items-center gap-gutter">
-          <button className="p-2 rounded-full hover:bg-surface-variant/20 transition-colors text-on-surface-variant">
-            <span className="material-symbols-outlined">settings</span>
-          </button>
-        </div>
       </header>
 
       {/* Main Content */}
-      <main className="pt-[72px] pb-[100px] max-w-4xl mx-auto px-container-padding-mobile md:px-container-padding-desktop">
+      <main className="pt-[72px] pb-8 max-w-4xl mx-auto px-container-padding-mobile md:px-container-padding-desktop h-screen flex flex-col overflow-hidden">
         {/* Camera Preview */}
-        <div className="relative w-full bg-surface-container-lowest rounded-xl overflow-hidden mb-stack-lg border border-outline-variant/20 shadow-2xl" style={{ aspectRatio: '1 / 1', maxWidth: '224px', margin: '0 auto 24px', minHeight: '224px' }}>
+        <div className="relative w-full bg-surface-container-lowest rounded-xl overflow-hidden mb-4 border border-outline-variant/20 shadow-2xl" style={{ aspectRatio: '1 / 1', maxWidth: '350px', margin: '0 auto 16px', minHeight: '350px' }}>
           {isCameraActive ? (
             <video
               ref={videoRef}
@@ -250,17 +254,17 @@ function App() {
         </div>
 
         {/* Camera Controls */}
-        <div className="flex flex-col items-center mb-stack-lg gap-stack-md">
+        <div className="flex flex-col items-center mb-4 gap-2">
           {!isCameraActive && !capturedImage && (
             <>
               <button 
                 onClick={startCamera}
                 className="shutter-ring rounded-full active:scale-95 transition-transform duration-200 group">
-                <div className="w-16 h-16 bg-primary-container rounded-full flex items-center justify-center text-on-primary-container shadow-lg group-hover:bg-primary transition-colors cursor-pointer">
-                  <span className="material-symbols-outlined text-[32px]">photo_camera</span>
+                <div className="w-14 h-14 bg-primary-container rounded-full flex items-center justify-center text-on-primary-container shadow-lg group-hover:bg-primary transition-colors cursor-pointer">
+                  <span className="material-symbols-outlined text-[28px]">photo_camera</span>
                 </div>
               </button>
-              <span className="font-label-caps text-label-caps text-on-surface-variant">START CAMERA</span>
+              <span className="font-label-caps text-label-caps text-on-surface-variant text-sm">SCAN</span>
             </>
           )}
 
@@ -292,22 +296,22 @@ function App() {
         </div>
 
         {/* File Upload & Control Buttons */}
-        <div className="flex gap-stack-md mb-stack-lg justify-center flex-wrap">
+        <div className="flex gap-2 mb-2 justify-center flex-wrap">
           {!isCameraActive && (
             <button 
               onClick={() => fileInputRef.current?.click()}
-              className="px-stack-lg py-stack-md bg-surface-container hover:bg-surface-container-high border border-outline-variant text-on-surface font-label-caps text-label-caps rounded-xl transition-colors flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px]">folder_open</span>
-              UPLOAD PHOTO
+              className="px-3 py-2 bg-surface-container hover:bg-surface-container-high border border-outline-variant text-on-surface font-label-caps text-label-caps text-sm rounded-lg transition-colors flex items-center gap-2">
+              <span className="material-symbols-outlined text-[16px]">folder_open</span>
+              UPLOAD
             </button>
           )}
           
           {isCameraActive && (
             <button 
               onClick={stopCamera}
-              className="px-stack-lg py-stack-md bg-error-container hover:bg-error text-error font-label-caps text-label-caps rounded-xl transition-colors flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px]">stop</span>
-              STOP CAMERA
+              className="px-3 py-2 bg-error-container hover:bg-error text-error font-label-caps text-label-caps text-sm rounded-lg transition-colors flex items-center gap-2">
+              <span className="material-symbols-outlined text-[16px]">stop</span>
+              STOP
             </button>
           )}
 
@@ -325,23 +329,21 @@ function App() {
 
         {/* Error Display */}
         {error && (
-          <div className="mb-stack-lg p-stack-md bg-error-container/30 border border-error/50 rounded-xl">
+          <div className="mb-2 p-2 bg-error-container/30 border border-error/50 rounded-lg text-sm">
             <p className="text-error font-body-sm">⚠️ {error}</p>
           </div>
         )}
 
         {/* Results Section */}
         {(prediction || capturedImage) && (
-          <section className="space-y-stack-lg">
+          <section className="space-y-2">
             <div className="flex items-center justify-between">
               <h2 className="font-headline-md text-headline-md text-on-surface">Results</h2>
               {prediction && (
                 <div className="flex items-center gap-2 px-3 py-1 bg-tertiary-container/30 border border-tertiary/20 rounded-full">
                   <span className="material-symbols-outlined text-sm text-tertiary">verified</span>
                   <span className="font-label-caps text-label-caps text-tertiary">
-                    {prediction.gender_confidence && 
-                      (Math.max(prediction.gender_confidence, prediction.race_confidence || 0) * 100).toFixed(1)}% Confidence
-                    }
+                    {(prediction.confidence?.gender * 100).toFixed(1)}% Confidence
                   </span>
                 </div>
               )}
@@ -351,25 +353,21 @@ function App() {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
                   <div className="bg-surface-container-low p-stack-md rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-colors group">
-                    <label className="block font-label-caps text-label-caps text-on-surface-variant mb-stack-sm">AGE</label>
+                    <label className="block font-label-caps text-label-caps text-on-surface-variant mb-stack-sm">🎂 AGE</label>
                     <div className="flex items-center justify-between">
-                      <span className="font-data-mono text-data-mono text-primary">{Math.round(prediction.age)} years</span>
+                      <span className="font-data-mono text-data-mono text-primary text-3xl font-bold">{prediction.age}</span>
+                      <span className="text-xs text-on-surface-variant">years</span>
                     </div>
+                    <p className="text-xs text-on-surface-variant mt-2">(±{Math.abs(Math.round(prediction.age_exact - prediction.age))} yr margin)</p>
                   </div>
 
                   <div className="bg-surface-container-low p-stack-md rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-colors group">
-                    <label className="block font-label-caps text-label-caps text-on-surface-variant mb-stack-sm">GENDER</label>
+                    <label className="block font-label-caps text-label-caps text-on-surface-variant mb-stack-sm">👤 GENDER</label>
                     <div className="flex items-center justify-between">
-                      <span className="font-data-mono text-data-mono text-on-surface capitalize">{prediction.gender}</span>
-                      <span className="text-xs text-on-surface-variant">{(prediction.gender_confidence * 100).toFixed(1)}%</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-surface-container-low p-stack-md rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-colors group md:col-span-2">
-                    <label className="block font-label-caps text-label-caps text-on-surface-variant mb-stack-sm">ETHNICITY</label>
-                    <div className="flex items-center justify-between">
-                      <span className="font-data-mono text-data-mono text-on-surface capitalize">{prediction.race}</span>
-                      <span className="text-xs text-on-surface-variant">{(prediction.race_confidence * 100).toFixed(1)}%</span>
+                      <span className="font-data-mono text-data-mono text-on-surface text-3xl font-bold">
+                        {prediction.gender === 'Male' ? '👨' : '👩'} {prediction.gender}
+                      </span>
+                      <span className="text-xs text-on-surface-variant">{(prediction.confidence?.gender * 100).toFixed(1)}%</span>
                     </div>
                   </div>
                 </div>
@@ -414,21 +412,6 @@ function App() {
         )}
       </main>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 px-4 pb-safe bg-surface-container dark:bg-surface-container-low border-t border-outline-variant/30 shadow-sm">
-        <button className="flex flex-col items-center justify-center text-on-surface-variant px-stack-lg py-1 hover:text-primary transition-colors" onClick={startCamera}>
-          <span className="material-symbols-outlined">photo_camera</span>
-          <span className="font-label-caps text-label-caps text-xs">Scan</span>
-        </button>
-        <button className="flex flex-col items-center justify-center text-on-secondary-fixed-variant px-stack-lg py-1 hover:bg-secondary-container/50">
-          <span className="material-symbols-outlined">history</span>
-          <span className="font-label-caps text-label-caps text-xs">History</span>
-        </button>
-        <button className="flex flex-col items-center justify-center text-on-secondary-fixed-variant px-stack-lg py-1 hover:bg-secondary-container/50">
-          <span className="material-symbols-outlined">manage_accounts</span>
-          <span className="font-label-caps text-label-caps text-xs">Settings</span>
-        </button>
-      </nav>
     </div>
   );
 }
