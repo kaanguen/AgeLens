@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  agelens-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agelens-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/app/models:ro
+      - ./data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: ["python", "-m", "uvicorn", "src.WebApp.app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  agelens-frontend:
+    image: node:18-alpine
+    container_name: agelens-frontend
+    working_dir: /app/src/WebApp
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src/WebApp:/app/src/WebApp
+      - /app/src/WebApp/node_modules
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    command: ["npm", "start"]
+    depends_on:
+      - agelens-backend
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: agelens-ngrok-dev
+    command: http agelens-backend:8000 --authtoken ${NGROK_AUTHTOKEN}
+    ports:
+      - "4040:4040"
+    depends_on:
+      - agelens-backend
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    restart: unless-stopped

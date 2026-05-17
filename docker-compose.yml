@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  agelens:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agelens-app
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount models directory (read-only or read-write)
+      - ./models:/app/models:ro
+      # Optional: Mount data directory
+      - ./data:/app/data
+      # Mount backend code to apply changes instantly without rebuilds
+      - ./src/WebApp/app.py:/app/src/WebApp/app.py
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: agelens-ngrok
+    command: http agelens:8000 --authtoken ${NGROK_AUTHTOKEN}
+    ports:
+      - "4040:4040"
+    depends_on:
+      - agelens
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    restart: unless-stopped
+
+# Optional: For development with hot-reload
+# Uncomment the following to use docker compose up -f docker-compose.dev.yml
