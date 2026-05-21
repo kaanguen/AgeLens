@@ -17,11 +17,11 @@ import uvicorn
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("🔮 Starting AgeLens FastAPI Server")
+    print("Starting AgeLens FastAPI Server")
     print("=" * 60)
-    print("\n📍 API will be available at: http://localhost:8000")
-    print("📍 Health check: http://localhost:8000/health")
-    print("\n⏳ Loading models on startup...")
+    print("\nAPI will be available at: http://localhost:8000")
+    print("Health check: http://localhost:8000/health")
+    print("\nLoading models on startup...")
     print("\nPress Ctrl+C to stop the server\n")
     
     uvicorn.run(

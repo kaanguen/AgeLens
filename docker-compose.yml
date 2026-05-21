@@ -36,6 +36,3 @@ services:
     environment:
       - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
     restart: unless-stopped
-
-# Optional: For development with hot-reload
-# Uncomment the following to use docker compose up -f docker-compose.dev.yml

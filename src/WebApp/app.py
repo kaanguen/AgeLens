@@ -45,41 +45,33 @@ def load_models():
         # Load Age Model
         if AGE_MODEL_PATH.exists():
             try:
-                print(f"📦 Loading age model from {AGE_MODEL_PATH}...")
                 age_model = keras_load_model(str(AGE_MODEL_PATH), compile=False, safe_mode=False)
-                print(f"✅ Age model loaded successfully")
             except TypeError:
-                # safe_mode not supported in this version
                 try:
                     age_model = keras_load_model(str(AGE_MODEL_PATH), compile=False)
-                    print(f"✅ Age model loaded (compile=False)")
                 except Exception as e2:
-                    print(f"❌ Age model error: {str(e2)[:200]}")
+                    print(f" Age model error: {str(e2)[:200]}")
             except Exception as e:
-                print(f"❌ Error loading age model: {str(e)[:200]}")
+                print(f"Error loading age model: {str(e)[:200]}")
         else:
-            print(f"❌ Age model not found at {AGE_MODEL_PATH}")
+            print(f"Age model not found at {AGE_MODEL_PATH}")
             
         # Load Gender Model
         if GENDER_MODEL_PATH.exists():
             try:
-                print(f"📦 Loading gender model from {GENDER_MODEL_PATH}...")
                 gender_model = keras_load_model(str(GENDER_MODEL_PATH), compile=False, safe_mode=False)
-                print(f"✅ Gender model loaded successfully")
             except TypeError:
-                # safe_mode not supported in this version
                 try:
                     gender_model = keras_load_model(str(GENDER_MODEL_PATH), compile=False)
-                    print(f"✅ Gender model loaded (compile=False)")
                 except Exception as e2:
-                    print(f"❌ Gender model error: {str(e2)[:200]}")
+                    print(f"Gender model error: {str(e2)[:200]}")
             except Exception as e:
-                print(f"❌ Error loading gender model: {str(e)[:200]}")
+                print(f"Error loading gender model: {str(e)[:200]}")
         else:
-            print(f"❌ Gender model not found at {GENDER_MODEL_PATH}")
+            print(f"Gender model not found at {GENDER_MODEL_PATH}")
             
     except Exception as e:
-        print(f"❌ Critical error in model loading: {e}")
+        print(f"Critical error in model loading: {e}")
 
 # Labels
 GENDER_LABELS = {0: "Male", 1: "Female"}
@@ -111,10 +103,10 @@ def process_image(image_bytes, target_size=(224, 224), grayscale=False):
             # Final shape: (1, 224, 224, 3)
             img_array = img_array[np.newaxis, :, :, :]
         
-        print(f"✅ Image processed (grayscale={grayscale}): shape={img_array.shape}, dtype={img_array.dtype}, min={img_array.min():.2f}, max={img_array.max():.2f}")
+        print(f"Image processed (grayscale={grayscale}): shape={img_array.shape}, dtype={img_array.dtype}, min={img_array.min():.2f}, max={img_array.max():.2f}")
         return img_array
     except Exception as e:
-        print(f"❌ Error in process_image: {e}")
+        print(f" Error in process_image: {e}")
         raise Exception(f"Error processing image: {str(e)}")
 
 @app.on_event("startup")
